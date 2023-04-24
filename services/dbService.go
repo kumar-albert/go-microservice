@@ -3,25 +3,50 @@ package services
 import (
 	"database/sql"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"time"
 
 	"github.com/go-sql-driver/mysql"
-
-	"go-microservice/utils"
+	"gopkg.in/yaml.v3"
 )
+
+type DBConfig struct {
+	Database struct {
+		Host     string
+		Name     string
+		User     string
+		Password string
+	}
+}
 
 type DBService struct {
 	client *sql.DB
+	config DBConfig
+}
+
+func (dbs *DBService) ReadConfig() {
+	yfile, err := ioutil.ReadFile("etc/configuration/database.yaml")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	unMarshalErr := yaml.Unmarshal(yfile, &dbs.config)
+
+	if unMarshalErr != nil {
+		log.Fatal(unMarshalErr)
+	}
 }
 
 func (dbs *DBService) new() *sql.DB {
+	dbs.ReadConfig()
+	fmt.Println(dbs.config)
 	cfg := mysql.Config{
-		User:   utils.DB_USER,
-		Passwd: utils.DB_PASSWORD,
+		User:   dbs.config.Database.User,
+		Passwd: dbs.config.Database.Password,
 		Net:    "tcp",
-		Addr:   fmt.Sprintf("%v:3306", utils.DB_HOST),
-		DBName: utils.DB_NAME,
+		Addr:   fmt.Sprintf("%v:3306", dbs.config.Database.Host),
+		DBName: dbs.config.Database.Name,
 	}
 	client, err := sql.Open("mysql", cfg.FormatDSN())
 
@@ -39,10 +64,6 @@ func (dbs *DBService) new() *sql.DB {
 
 }
 
-func (dbs *DBService) GetClient() *sql.DB {
-	return dbs.client
-}
-
 func (dbs *DBService) init() {
 	dbs.client = dbs.new()
 	pingErr := dbs.client.Ping()
@@ -50,4 +71,11 @@ func (dbs *DBService) init() {
 		log.Fatal(pingErr)
 	}
 	fmt.Println("Connected!")
+}
+
+func (dbs *DBService) GetConnection() *sql.DB {
+	if dbs.client == nil {
+		dbs.init()
+	}
+	return dbs.client
 }

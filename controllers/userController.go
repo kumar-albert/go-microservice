@@ -8,6 +8,7 @@ import (
 	"go-microservice/services"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 func GetUsers(c *gin.Context) {
@@ -24,9 +25,11 @@ func SaveUser(c *gin.Context) {
 	if err := c.BindJSON(&user); err != nil {
 		fmt.Errorf("Error while bind user request")
 	}
-	user = userService.InsertUser(user)
+	user.ID = uuid.New()
+	user = userService.InsertUser(&user)
 	c.JSON(http.StatusOK, gin.H{
-		"data": user,
+		"data":    user,
+		"message": "user saved successfully!",
 	})
 }
 
@@ -39,7 +42,8 @@ func UpdateUser(c *gin.Context) {
 	user = userService.UpdateUser(user)
 
 	c.JSON(http.StatusOK, gin.H{
-		"data": user,
+		"data":    user,
+		"message": "user updated successfully!",
 	})
 }
 
@@ -51,6 +55,7 @@ func DeleteUser(c *gin.Context) {
 	}
 	user = userService.DeleteUser(user)
 	c.JSON(http.StatusOK, gin.H{
-		"data": user,
+		"data":    user,
+		"message": "user deleted successfully!",
 	})
 }

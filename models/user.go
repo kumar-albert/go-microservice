@@ -1,16 +1,9 @@
 package models
 
-import (
-	"time"
-
-	"gorm.io/gorm"
-)
+import "github.com/google/uuid"
 
 type User struct {
-	ID        string `gorm:"primaryKey"`
-	Name      string
-	Email     string
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt `gorm:"index"`
+	ID    uuid.UUID
+	Name  string
+	Email string
 }

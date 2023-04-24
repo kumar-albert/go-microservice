@@ -2,6 +2,8 @@ module go-microservice
 
 go 1.20
 
+require gopkg.in/yaml.v2 v2.2.4
+
 require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
 	github.com/bytedance/sonic v1.8.5 // indirect
