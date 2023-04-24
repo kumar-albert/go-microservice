@@ -8,18 +8,26 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func main() {
+func setupRouter() *gin.Engine {
 	router := gin.Default()
 	router.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "pong",
 		})
 	})
+	v1 := router.Group("/v1")
+	{
+		v1.GET("/users", controllers.GetUsers)
+		v1.POST("/users", controllers.SaveUser)
+		v1.PUT("/users", controllers.UpdateUser)
+		v1.DELETE("/users", controllers.DeleteUser)
+	}
 
-	router.GET("/users", controllers.GetUsers)
-	router.POST("/users", controllers.SaveUser)
-	router.PUT("/users", controllers.UpdateUser)
-	router.DELETE("/users", controllers.DeleteUser)
+	return router
+}
 
-	router.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+func main() {
+	r := setupRouter()
+
+	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }

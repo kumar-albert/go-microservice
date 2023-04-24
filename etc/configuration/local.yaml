@@ -1,0 +1,6 @@
+
+database:
+  host: 0.0.0.0
+  name: go_db
+  user: root
+  password: mysql
